@@ -21,38 +21,6 @@ export default function HomePage() {
       {/* Stats Grid */}
       <StatsGrid />
       <LinksTable />
-
-      {/* Tabs untuk Konten */}
-      <Tabs defaultValue="links" className="space-y-4">
-        <TabsContent value="links" className="space-y-4">
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Links</CardTitle>
-                </CardHeader>
-                <CardContent></CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <Card>
-            <CardHeader>
-              <CardTitle>Analytics Dashboard</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-96 flex items-center justify-center border-2 border-dashed rounded-lg">
-                <div className="text-center">
-                  <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Analytics charts will appear here</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }

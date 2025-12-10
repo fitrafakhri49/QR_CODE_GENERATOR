@@ -3,18 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LogoutButton from "@/components/ui/LogoutButton";
-import { Plus, Filter, Link, PieChart } from "lucide-react";
+import { Plus, Link, PieChart } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import ShortenModal from "../modal/ShortenModal";
 import { useCallback, useEffect, useState } from "react";
-import { decode } from "punycode";
 
 interface JwtPayload {
   email: string;
   user_metadata: {
     full_name?: string;
     name?: string;
-    avatar_url?: string;
   };
   // Supabase JWT juga memiliki properti aud, sub, exp, dll.
 }
@@ -48,7 +46,6 @@ export default function Header() {
 
       // Ambil nama dari user_metadata (jika ada) atau gunakan bagian pertama email
       const rawDisplayName = decoded.user_metadata?.full_name || decoded.user_metadata?.name || email.split("@")[0];
-      const initial = rawDisplayName.charAt(0).toUpperCase();
 
       setUserData({
         email: email,
@@ -109,12 +106,6 @@ export default function Header() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard" className="cursor-pointer">
-                <PieChart className="mr-2 h-4 w-4" />
-                Dashboard
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="p-0">
               <LogoutButton variant="ghost" size="sm" className="w-full justify-start h-9 px-2 text-red-600 hover:text-red-700 hover:bg-red-50" showIcon={true} label="Log out" />

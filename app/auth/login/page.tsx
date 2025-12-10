@@ -1,171 +1,126 @@
-//app/auth/login.page.tsx
-
+// app/auth/login/page.tsx
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSuccess = async (credentialResponse: any) => {
+  // Konfigurasi API
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1/auth/google-verify";
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true);
     setError(null);
+
     const idToken = credentialResponse.credential;
 
     try {
-      // ⚠️ PERHATIKAN URL INI
-      const API_URL = "http://localhost:4000/api/v1/auth/google-verify";
-
       const response = await axios.post(API_URL, {
         token: idToken,
       });
 
-      console.log("Login Google berhasil (Client Side):", response.data.session);
-      // Simpan token, redirect
-      const { session } = response.data;
+      // Log untuk debugging (hapus di production)
+      console.log("Login Google berhasil:", response.data.session);
 
-      // 4. SIMPAN TOKEN/SESI KE LOCAL STORAGE
-      // Supabase JWT biasanya ada di session.access_token
-      localStorage.setItem("authToken", session.access_token);
-      router.push("/dashboard");
+      // Simpan session ke localStorage
+      const { session } = response.data;
+      if (session?.access_token) {
+        localStorage.setItem("authToken", session.access_token);
+        localStorage.setItem("userData", JSON.stringify(session.user));
+
+        // Redirect ke dashboard
+        router.push("/dashboard");
+      } else {
+        throw new Error("Token tidak ditemukan dalam response");
+      }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Gagal login Google.");
+      const errorMessage = err.response?.data?.error || err.message || "Gagal melakukan login. Silakan coba lagi.";
+      setError(errorMessage);
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault(); // Mencegah refresh halaman
-    setLoading(true);
-    setError(null);
+  const handleGoogleError = () => {
+    setError("Gagal login dengan Google. Silakan coba lagi.");
+  };
 
-    try {
-      // ⚠️ PERHATIKAN URL INI: Base URL + Prefix
-      const API_URL = "http://localhost:4000/api/v1/auth/login";
-
-      const response = await axios.post(API_URL, {
-        email,
-        password,
-      });
-
-      // Login berhasil, simpan token/session atau redirect
-      console.log("Login Berhasil:", response.data.session);
-      // Contoh: localStorage.setItem('token', response.data.session.access_token);
-      // router.push('/dashboard');
-    } catch (err: any) {
-      // Tangani error, tampilkan pesan error dari backend
-      setError(err.response?.data?.error || "Gagal login. Cek koneksi server.");
-    } finally {
-      setLoading(false);
-    }
-  }
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl border-0">
-        <CardHeader className="space-y-1">
-          <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 bg-linear-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-4">
+      <Card className="w-full max-w-md shadow-xl border border-gray-200">
+        <CardHeader className="space-y-3 pb-6">
+          {/* Logo */}
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
               <span className="text-white font-bold text-2xl">QR</span>
             </div>
+            <CardTitle className="text-2xl font-bold text-center text-gray-800">Welcome Back</CardTitle>
+            <CardDescription className="text-center text-gray-600">Sign in to access your dashboard</CardDescription>
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
-          <CardDescription className="text-center">Enter your credentials to access your dashboard</CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="space-y-6">
+          {/* Error Alert */}
           {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertDescription>{error}</AlertDescription>
+            <Alert variant="destructive" className="animate-in fade-in-50">
+              <AlertDescription className="text-sm">{error}</AlertDescription>
             </Alert>
           )}
 
-          <div style={{ padding: 40 }} className="text-center">
-            <h1>Login</h1>
-            <GoogleLogin onSuccess={handleSuccess} onError={() => console.log("Login Failed")} />
+          {/* Google Login Section */}
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Continue with</span>
+              </div>
+            </div>
+
+            {/* Google Login Button */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-xs">
+                {loading ? (
+                  <Button disabled className="w-full">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </Button>
+                ) : (
+                  <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} theme="filled_blue" size="large" shape="rectangular" text="signin_with" locale="id" />
+                )}
+              </div>
+            </div>
+
+            {/* Additional Info */}
+            <p className="text-xs text-center text-gray-500 pt-4">
+              By continuing, you agree to our{" "}
+              <a href="/terms" className="text-blue-600 hover:underline">
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a href="/privacy" className="text-blue-600 hover:underline">
+                Privacy Policy
+              </a>
+            </p>
           </div>
 
-          {/* <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10" required disabled={loading} />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10 pr-10" required disabled={loading} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600" disabled={loading}>
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form> */}
-
-          {/* <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-gray-500">Or continue with</span>
-            </div>
-          </div> */}
+          {/* Demo Note */}
+          <div className="mt-8 pt-6 border-t border-gray-100">
+            <p className="text-xs text-gray-500 text-center">Using demo account? Contact admin for credentials</p>
+          </div>
         </CardContent>
-
-        {/* <CardFooter className="flex flex-col space-y-4">
-          <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?{" "}
-            <Link href="/auth/register" className="text-blue-600 hover:text-blue-800 hover:underline font-semibold">
-              Sign up
-            </Link>
-          </div>
-
-          <div className="text-center text-xs text-gray-500">
-            By continuing, you agree to our{" "}
-            <Link href="/terms" className="underline">
-              Terms
-            </Link>{" "}
-            and{" "}
-            <Link href="/privacy" className="underline">
-              Privacy Policy
-            </Link>
-          </div>
-        </CardFooter> */}
       </Card>
     </div>
   );

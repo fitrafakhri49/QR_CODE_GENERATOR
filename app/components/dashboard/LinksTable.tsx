@@ -3,15 +3,17 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Copy, Eye, Share2, MoreVertical, QrCode, Loader2 } from "lucide-react";
+import { Copy, Eye, MoreVertical, QrCode, Loader2, RefreshCw } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState, useEffect, useCallback } from "react"; // Tambahkan hook ini
 import axios from "axios";
-import { supabase } from "@/lib/supabase.client";
+
+import QrCodeModal from "./QrCodeModal";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Definisikan Interface untuk Data Link dari Backend Anda
 interface LinkItem {
-  id: number; // Atau string, tergantung Prisma ID Anda
+  id: string; // Atau string, tergantung Prisma ID Anda
   name: string | null; // Asumsi name bisa null
   shortCode: string;
   shortUrl: string;
@@ -68,6 +70,29 @@ export default function LinksTable() {
     // Tambahkan notifikasi toast di sini
     alert("URL berhasil disalin!");
   };
+  const handleDelete = async (linkId: string) => {
+    // Tampilkan konfirmasi (opsional tapi disarankan)
+    if (!confirm("Apakah Anda yakin ingin menghapus link ini?")) {
+      return;
+    }
+
+    setLoading(true); // Tampilkan loading saat menghapus
+    try {
+      // Panggil endpoint DELETE dengan ID link
+      const API_URL_DELETE = `${API_URL}/links/${linkId}`;
+
+      await axios.delete(API_URL_DELETE);
+
+      // Setelah sukses, refresh data tabel
+      await fetchLinks();
+      // Tampilkan notifikasi sukses (jika pakai toast)
+      alert("Link berhasil dihapus!");
+    } catch (err: any) {
+      console.error("Gagal menghapus link:", err);
+      alert(err.response?.data?.message || "Gagal menghapus link.");
+      setLoading(false); // Sembunyikan loading jika gagal
+    }
+  };
 
   // ----------------------------------------------------
   // LOGIC RENDERING
@@ -102,71 +127,87 @@ export default function LinksTable() {
 
   return (
     <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name / Long URL</TableHead>
-            <TableHead>Short URL</TableHead>
-            <TableHead>Clicks</TableHead>
-            <TableHead>QR</TableHead>
-            <TableHead className="text-right">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {links.map((link) => (
-            // Gunakan link.id (dari DB) sebagai key
-            <TableRow key={link.id}>
-              <TableCell>
-                <div>
-                  {/* Tampilkan link.name jika ada, jika tidak, gunakan ShortCode atau LongUrl */}
-                  <p className="font-medium">{link.name || link.shortCode}</p>
-                  <p className="text-sm text-gray-500 truncate max-w-xs">{link.longUrl}</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-blue-600">{link.shortUrl}</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(link.shortUrl)}>
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-gray-400" />
-                  <span className="font-semibold">{link.clickCount}</span>
-                </div>
-              </TableCell>
-              <TableCell>
-                {/* Asumsi Anda ingin menampilkan tombol/ikon QR */}
-                <Button variant="outline" size="icon" className="h-8 w-8">
-                  <QrCode className="h-4 w-4" />
-                </Button>
-
-                {/* Anda mungkin perlu membuat modal untuk menampilkan QR code-nya (menggunakan link.qrImageUrl) */}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button variant="ghost" size="icon">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
+      <Card>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" onClick={fetchLinks}>
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>URL Pendek</TableHead>
+                <TableHead>URL Asli</TableHead>
+                <TableHead>Clicks</TableHead>
+                <TableHead>QR</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {links.map((link) => (
+                // Gunakan link.id (dari DB) sebagai key
+                <TableRow key={link.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-blue-600">{link.shortUrl}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(link.shortUrl)}>
+                        <Copy className="h-3 w-3" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      {/* Tampilkan link.name jika ada, jika tidak, gunakan ShortCode atau LongUrl */}
+                      <p className="font-medium">{link.longUrl}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Eye className="h-4 w-4 text-gray-400" />
+                      <span className="font-semibold">{link.clickCount}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {link.qrImageUrl ? (
+                      <QrCodeModal qrImageUrl={link.qrImageUrl} shortCode={link.shortCode} />
+                    ) : (
+                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                        <QrCode className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {/* --- EDIT (Langkah 3) --- */}
+                          <DropdownMenuItem onClick={() => alert(`Akan mengedit Link ID: ${link.id}`)}>Edit</DropdownMenuItem>
+
+                          {/* --- DELETE (Telah Aktif) --- */}
+                          <DropdownMenuItem
+                            className="text-red-600 cursor-pointer"
+                            onClick={() => handleDelete(link.id)} // 👈 Panggil fungsi delete di sini
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }

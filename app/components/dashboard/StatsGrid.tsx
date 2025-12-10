@@ -1,13 +1,6 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Activity,
-  Link as LinkIcon,
-  Globe,
-  Users,
-  TrendingUp,
-  Clock,
-} from "lucide-react";
+import { Activity, Link as LinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 export default function StatsGrid() {
@@ -29,10 +22,7 @@ export default function StatsGrid() {
         const data = res.data;
 
         setTotalLinks(data.totalLinks || 0);
-        const clicks =
-          data.totalClicks?._sum?.clickCount !== null
-            ? data.totalClicks._sum.clickCount
-            : 0;
+        const clicks = data.totalClicks?._sum?.clickCount !== null ? data.totalClicks._sum.clickCount : 0;
 
         setTotalClicks(clicks);
       } catch (error) {
@@ -48,15 +38,13 @@ export default function StatsGrid() {
     {
       title: "Total Clicks",
       value: totalClicks.toLocaleString(),
-      change: "+0%",
       icon: <Activity className="h-5 w-5 text-blue-600" />,
       color: "bg-blue-50",
       trend: "up",
     },
     {
-      title: "Active Links",
+      title: "Links Aktif",
       value: totalLinks.toString(),
-      change: "+0",
       icon: <LinkIcon className="h-5 w-5 text-green-600" />,
       color: "bg-green-50",
       trend: "up",
@@ -70,21 +58,9 @@ export default function StatsGrid() {
           <CardContent className="p-6">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-gray-500">
-                  {stat.title}
-                </p>
+                <p className="text-sm font-medium text-gray-500">{stat.title}</p>
                 <p className="text-2xl font-bold mt-2">{stat.value}</p>
-                <p
-                  className={`text-sm mt-1 ${
-                    stat.trend === "up"
-                      ? "text-green-600"
-                      : stat.trend === "down"
-                      ? "text-red-600"
-                      : "text-gray-500"
-                  }`}
-                >
-                  {stat.change}
-                </p>
+                <p className={`text-sm mt-1 ${stat.trend === "up" ? "text-green-600" : stat.trend === "down" ? "text-red-600" : "text-gray-500"}`}>{stat.change}</p>
               </div>
               <div className={`p-3 rounded-lg ${stat.color}`}>{stat.icon}</div>
             </div>
