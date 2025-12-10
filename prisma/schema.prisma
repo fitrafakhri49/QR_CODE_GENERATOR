@@ -6,10 +6,35 @@
 
 generator client {
   provider = "prisma-client-js"
-  // output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model LinkItem {
+  id String @id @default(uuid())
+
+  // Jenis item: SHORT + QR
+  type LinkType @default(SHORT)
+
+  // ShortLink fields
+  longUrl   String
+  shortCode String @unique
+  shortUrl  String @unique
+
+  // QRCode fields
+  qrImageUrl String? // URL QR Code (misal upload ke Cloudinary)
+  qrCode     String? // data yang di-encode di QR
+
+  // Statistik
+  clickCount Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
+enum LinkType {
+  SHORT
+  QR
 }
