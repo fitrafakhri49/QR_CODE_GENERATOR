@@ -1,15 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 // import ThemeSwitcher from "@/components/ui/ThemeToggle";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -17,9 +12,9 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-              <span className="font-bold text-white">M</span>
+              <span className="font-bold text-white">QR</span>
             </div>
-            <span className="text-xl font-bold">My Receipts</span>
+            <span className="text-xl font-bold">Short Link & QR</span>
           </Link>
         </div>
 
@@ -37,7 +32,7 @@ export default function Navbar() {
         </nav>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden">
+        {/* <div className="md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -51,9 +46,9 @@ export default function Navbar() {
                     <span className="font-bold text-white">M</span>
                   </div>
                   <span className="text-xl font-bold">My Receipts</span>
-                </div>
+                </div> */}
 
-                <div className="flex flex-col gap-4">
+        {/* <div className="flex flex-col gap-4">
                   <Button variant="outline" className="w-full justify-start" asChild>
                     <Link href="/auth/login" onClick={() => setIsOpen(false)}>
                       Login
@@ -64,12 +59,12 @@ export default function Navbar() {
                       Sign Up
                     </Link>
                   </Button>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
+                </div> */}
       </div>
+      {/* </SheetContent> */}
+      {/* </Sheet> */}
+      {/* </div> */}
+      {/* </div> */}
     </header>
   );
 }

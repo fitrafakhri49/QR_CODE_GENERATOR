@@ -81,7 +81,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 bg-linear-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">R</span>
+              <span className="text-white font-bold text-2xl">QR</span>
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
@@ -95,12 +95,12 @@ export default function LoginPage() {
             </Alert>
           )}
 
-          <div style={{ padding: 40 }}>
+          <div style={{ padding: 40 }} className="text-center">
             <h1>Login</h1>
             <GoogleLogin onSuccess={handleSuccess} onError={() => console.log("Login Failed")} />
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          {/* <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -135,19 +135,19 @@ export default function LoginPage() {
                 "Sign In"
               )}
             </Button>
-          </form>
+          </form> */}
 
-          <div className="relative my-6">
+          {/* <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-gray-500">Or continue with</span>
             </div>
-          </div>
+          </div> */}
         </CardContent>
 
-        <CardFooter className="flex flex-col space-y-4">
+        {/* <CardFooter className="flex flex-col space-y-4">
           <div className="text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?{" "}
             <Link href="/auth/register" className="text-blue-600 hover:text-blue-800 hover:underline font-semibold">
@@ -165,7 +165,7 @@ export default function LoginPage() {
               Privacy Policy
             </Link>
           </div>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
     </div>
   );
