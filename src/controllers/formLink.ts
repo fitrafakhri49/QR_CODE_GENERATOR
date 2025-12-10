@@ -6,7 +6,7 @@ import cloudinary from "../services/cloudinary";
 import { nanoid } from "nanoid";
 
 export async function createShortLinkWithQr(req: Request, res: Response) {
-    const user = (req as any).user; // dari requireAuth
+  const user = (req as any).user; // dari requireAuth
 
   try {
     const { longUrl } = req.body;
@@ -37,7 +37,7 @@ export async function createShortLinkWithQr(req: Request, res: Response) {
         qrCode: longUrl,
         qrImageUrl: uploadResult.secure_url,
         type: "SHORT",
-        userId:user.id
+        userId: user.id,
       },
     });
     res.status(201).json({
@@ -70,21 +70,50 @@ export const redirectShortLink = async (req: Request, res: Response) => {
   }
 };
 export const getAllLinks = async (req: Request, res: Response) => {
-    const user = (req as any).user;
+  const user = (req as any).user;
 
-    try {
-    const links = await prisma.linkItem.findMany({ 
-        where:{userId:user.id},
-        orderBy: { createdAt: "desc" } });
-        const totalLinks = await prisma.linkItem.count({
-            where: { userId: user.id }
-          });
-          const totalClicks = await prisma.linkItem.aggregate({
-            _sum: { clickCount: true },
-            where: { userId: user.id }
-          });
-    res.status(200).json({ data: links,totalLinks,totalClicks });
+  try {
+    const links = await prisma.linkItem.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+    });
+    const totalLinks = await prisma.linkItem.count({
+      where: { userId: user.id },
+    });
+    const totalClicks = await prisma.linkItem.aggregate({
+      _sum: { clickCount: true },
+      where: { userId: user.id },
+    });
+    res.status(200).json({ data: links, totalLinks, totalClicks });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
+
+export async function deleteLink(req: Request, res: Response) {
+  try {
+    const { id } = req.params; // ID yang diambil dari URL params (tipe: string)
+
+    if (!id) {
+      return res.status(400).json({ message: "ID link wajib diisi." });
+    }
+
+    // Cek apakah link dengan ID string tersebut ada
+    const link = await prisma.linkItem.findUnique({
+      where: { id: id }, // 👈 Gunakan ID sebagai string
+    });
+
+    if (!link) {
+      return res.status(404).json({ message: "Link tidak ditemukan." });
+    }
+
+    // Hapus link
+    await prisma.linkItem.delete({
+      where: { id: id }, // 👈 Gunakan ID sebagai string
+    });
+
+    res.status(200).json({ message: "Link berhasil dihapus" });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+}
