@@ -4,7 +4,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link as LinkIcon, Loader2, X } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,9 +44,15 @@ export default function ShortenModal({ children }: ShortenModalProps) {
 
     try {
       // Panggil endpoint router.post("/links", ...)
-      const response = await axios.post(`${API_URL}/links`, {
-        longUrl,
-      });
+      const token = localStorage.getItem("authToken");
+
+      const response = await axios.post(
+        `${API_URL}/links`,
+        {
+          longUrl,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       // Data yang dikembalikan sesuai dengan controller Express Anda (response.data.data)
       const data = response.data.data;
@@ -49,7 +62,8 @@ export default function ShortenModal({ children }: ShortenModalProps) {
         qrImageUrl: data.qrImageUrl,
       });
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Terjadi kesalahan saat membuat tautan.";
+      const errorMessage =
+        err.response?.data?.message || "Terjadi kesalahan saat membuat tautan.";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -69,10 +83,19 @@ export default function ShortenModal({ children }: ShortenModalProps) {
       <DialogTrigger asChild>
         <DialogTrigger asChild>{children}</DialogTrigger>
       </DialogTrigger>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()} className="max-w-lg">
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        className="max-w-lg"
+      >
         <DialogHeader>
-          <DialogTitle>{result ? "Link Berhasil Dibuat" : "Buat Tautan Pendek Baru"}</DialogTitle>
-          <DialogDescription>{result ? "Short URL dan QR Code siap digunakan." : "Masukkan URL panjang yang ingin Anda perpendek."}</DialogDescription>
+          <DialogTitle>
+            {result ? "Link Berhasil Dibuat" : "Buat Tautan Pendek Baru"}
+          </DialogTitle>
+          <DialogDescription>
+            {result
+              ? "Short URL dan QR Code siap digunakan."
+              : "Masukkan URL panjang yang ingin Anda perpendek."}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Bagian Hasil (Jika Berhasil) */}
@@ -92,7 +115,16 @@ export default function ShortenModal({ children }: ShortenModalProps) {
               <Label htmlFor="longUrl">URL Panjang</Label>
               <div className="relative">
                 <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input id="longUrl" type="url" placeholder="https://url-panjang-anda.com/..." value={longUrl} onChange={(e) => setLongUrl(e.target.value)} className="pl-10" required disabled={loading} />
+                <Input
+                  id="longUrl"
+                  type="url"
+                  placeholder="https://url-panjang-anda.com/..."
+                  value={longUrl}
+                  onChange={(e) => setLongUrl(e.target.value)}
+                  className="pl-10"
+                  required
+                  disabled={loading}
+                />
               </div>
             </div>
 

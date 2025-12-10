@@ -1,12 +1,25 @@
 // components/LinksTable.tsx
 "use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Copy, Eye, Share2, MoreVertical, QrCode, Loader2 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState, useEffect, useCallback } from "react"; // Tambahkan hook ini
 import axios from "axios";
+import { supabase } from "@/lib/supabase.client";
 
 // Definisikan Interface untuk Data Link dari Backend Anda
 interface LinkItem {
@@ -35,7 +48,16 @@ export default function LinksTable() {
     setError(null);
     try {
       // Panggil endpoint router.get("/links", getAllLinks)
-      const response = await axios.get(`${API_URL}/links`);
+      const token = localStorage.getItem("authToken"); // ambil token
+      if (!token) throw new Error("User belum login");
+      if (!token) {
+        setError("User belum login");
+        setLinks([]);
+        return;
+      }
+      const response = await axios.get(`${API_URL}/links`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       // Data link ada di response.data.data
       setLinks(response.data.data);
@@ -76,7 +98,9 @@ export default function LinksTable() {
     return (
       <div className="p-4 border border-red-400 bg-red-50 rounded-md">
         <p className="text-red-700 font-medium">Error: {error}</p>
-        <p className="text-sm text-red-600">Pastikan server Express Anda berjalan di {API_URL}</p>
+        <p className="text-sm text-red-600">
+          Pastikan server Express Anda berjalan di {API_URL}
+        </p>
       </div>
     );
   }
@@ -84,8 +108,12 @@ export default function LinksTable() {
   if (links.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 border rounded-md">
-        <p className="text-lg font-medium mb-4">Belum ada tautan yang dibuat.</p>
-        <p className="text-gray-500">Gunakan tombol "Create New" untuk memulai.</p>
+        <p className="text-lg font-medium mb-4">
+          Belum ada tautan yang dibuat.
+        </p>
+        <p className="text-gray-500">
+          Gunakan tombol "Create New" untuk memulai.
+        </p>
       </div>
     );
   }
@@ -110,13 +138,22 @@ export default function LinksTable() {
                 <div>
                   {/* Tampilkan link.name jika ada, jika tidak, gunakan ShortCode atau LongUrl */}
                   <p className="font-medium">{link.name || link.shortCode}</p>
-                  <p className="text-sm text-gray-500 truncate max-w-xs">{link.longUrl}</p>
+                  <p className="text-sm text-gray-500 truncate max-w-xs">
+                    {link.longUrl}
+                  </p>
                 </div>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-blue-600">{link.shortUrl}</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(link.shortUrl)}>
+                  <span className="font-mono text-blue-600">
+                    {link.shortUrl}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => handleCopy(link.shortUrl)}
+                  >
                     <Copy className="h-3 w-3" />
                   </Button>
                 </div>
@@ -148,7 +185,9 @@ export default function LinksTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-600">
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
