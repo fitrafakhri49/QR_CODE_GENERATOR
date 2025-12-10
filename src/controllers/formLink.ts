@@ -76,7 +76,14 @@ export const getAllLinks = async (req: Request, res: Response) => {
     const links = await prisma.linkItem.findMany({ 
         where:{userId:user.id},
         orderBy: { createdAt: "desc" } });
-    res.status(200).json({ data: links });
+        const totalLinks = await prisma.linkItem.count({
+            where: { userId: user.id }
+          });
+          const totalClicks = await prisma.linkItem.aggregate({
+            _sum: { clickCount: true },
+            where: { userId: user.id }
+          });
+    res.status(200).json({ data: links,totalLinks,totalClicks });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
