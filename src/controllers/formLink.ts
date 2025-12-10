@@ -6,6 +6,8 @@ import cloudinary from "../services/cloudinary";
 import { nanoid } from "nanoid";
 
 export async function createShortLinkWithQr(req: Request, res: Response) {
+    const user = (req as any).user; // dari requireAuth
+
   try {
     const { longUrl } = req.body;
     if (!longUrl) {
@@ -35,6 +37,7 @@ export async function createShortLinkWithQr(req: Request, res: Response) {
         qrCode: longUrl,
         qrImageUrl: uploadResult.secure_url,
         type: "SHORT",
+        userId:user.id
       },
     });
     res.status(201).json({
@@ -67,8 +70,12 @@ export const redirectShortLink = async (req: Request, res: Response) => {
   }
 };
 export const getAllLinks = async (req: Request, res: Response) => {
-  try {
-    const links = await prisma.linkItem.findMany({ orderBy: { createdAt: "desc" } });
+    const user = (req as any).user;
+
+    try {
+    const links = await prisma.linkItem.findMany({ 
+        where:{userId:user.id},
+        orderBy: { createdAt: "desc" } });
     res.status(200).json({ data: links });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
