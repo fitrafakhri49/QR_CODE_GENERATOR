@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Activity, Link as LinkIcon } from "lucide-react";
+import { Activity, Link as LinkIcon, MousePointer2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 export default function StatsGrid() {
@@ -36,14 +36,14 @@ export default function StatsGrid() {
   // Stats dengan data nyata
   const stats = [
     {
-      title: "Total Clicks",
+      title: "Total Lifetime Clicks",
       value: totalClicks.toLocaleString(),
-      icon: <Activity className="h-5 w-5 text-blue-600" />,
+      icon: <MousePointer2 className="h-5 w-5 text-blue-600" />,
       color: "bg-blue-50",
       trend: "up",
     },
     {
-      title: "Links Aktif",
+      title: "Total Links Created",
       value: totalLinks.toString(),
       icon: <LinkIcon className="h-5 w-5 text-green-600" />,
       color: "bg-green-50",

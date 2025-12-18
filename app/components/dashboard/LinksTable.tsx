@@ -102,7 +102,7 @@ export default function LinksTable() {
     return (
       <div className="flex justify-center items-center p-12 border rounded-md">
         <Loader2 className="h-6 w-6 animate-spin mr-2" />
-        <p>Memuat data tautan...</p>
+        <p>Processing Data....</p>
       </div>
     );
   }
@@ -139,8 +139,8 @@ export default function LinksTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>URL Pendek</TableHead>
-                <TableHead>URL Asli</TableHead>
+                <TableHead>Short URL</TableHead>
+                <TableHead>Long URL </TableHead>
                 <TableHead>Clicks</TableHead>
                 <TableHead>QR</TableHead>
                 <TableHead className="text-right">Action</TableHead>

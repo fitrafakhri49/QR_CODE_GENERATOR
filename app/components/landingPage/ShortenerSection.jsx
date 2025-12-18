@@ -1,11 +1,11 @@
 "use client";
 
-import { Link as LinkIcon, QrCode, Layout, Check } from "lucide-react";
+import { Link as LinkIcon, QrCode, Check } from "lucide-react";
 import Link from "next/link";
 
 export default function ShortenerSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
+    <section className="relative pt-10 min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>

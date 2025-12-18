@@ -62,7 +62,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-3 pb-6">
           {/* Logo */}
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+            <div className="w-16 h-16 rounded-full bg-orange-600 flex items-center justify-center text-white font-bold italic">
               <span className="text-white font-bold text-2xl">QR</span>
             </div>
             <CardTitle className="text-2xl font-bold text-center text-gray-800">Welcome Back</CardTitle>
