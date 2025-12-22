@@ -3,7 +3,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -16,7 +22,9 @@ export default function LoginPage() {
   const router = useRouter();
 
   // Konfigurasi API
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1/auth/google-verify";
+  const API_URL =
+    process.env.localNEXT_PUBLIC_API_URL ||
+    "http://localhost:4000/api/v1/auth/google-verify";
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true);
@@ -44,7 +52,10 @@ export default function LoginPage() {
         throw new Error("Token tidak ditemukan dalam response");
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.message || "Gagal melakukan login. Silakan coba lagi.";
+      const errorMessage =
+        err.response?.data?.error ||
+        err.message ||
+        "Gagal melakukan login. Silakan coba lagi.";
       setError(errorMessage);
       console.error("Login error:", err);
     } finally {
@@ -65,8 +76,12 @@ export default function LoginPage() {
             <div className="w-16 h-16 rounded-full bg-orange-600 flex items-center justify-center text-white font-bold italic">
               <span className="text-white font-bold text-2xl">QR</span>
             </div>
-            <CardTitle className="text-2xl font-bold text-center text-gray-800">Welcome Back</CardTitle>
-            <CardDescription className="text-center text-gray-600">Sign in to access your dashboard</CardDescription>
+            <CardTitle className="text-2xl font-bold text-center text-gray-800">
+              Welcome Back
+            </CardTitle>
+            <CardDescription className="text-center text-gray-600">
+              Sign in to access your dashboard
+            </CardDescription>
           </div>
         </CardHeader>
 
@@ -85,7 +100,9 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Continue with</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Continue with
+                </span>
               </div>
             </div>
 
@@ -98,7 +115,15 @@ export default function LoginPage() {
                     Processing...
                   </Button>
                 ) : (
-                  <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} theme="filled_blue" size="large" shape="rectangular" text="signin_with" locale="id" />
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    theme="filled_blue"
+                    size="large"
+                    shape="rectangular"
+                    text="signin_with"
+                    locale="id"
+                  />
                 )}
               </div>
             </div>
@@ -118,7 +143,9 @@ export default function LoginPage() {
 
           {/* Demo Note */}
           <div className="mt-8 pt-6 border-t border-gray-100">
-            <p className="text-xs text-gray-500 text-center">Using demo account? Contact admin for credentials</p>
+            <p className="text-xs text-gray-500 text-center">
+              Using demo account? Contact admin for credentials
+            </p>
           </div>
         </CardContent>
       </Card>

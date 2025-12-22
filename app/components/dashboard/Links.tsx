@@ -2,7 +2,20 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Search, Filter, Calendar, Tag, BarChart2, Pencil, Share2, MoreHorizontal, Copy, Link as LinkIcon, Trash, Loader2 } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Calendar,
+  Tag,
+  BarChart2,
+  Pencil,
+  Share2,
+  MoreHorizontal,
+  Copy,
+  Link as LinkIcon,
+  Trash,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Sidebar from "@/app/components/dashboard/Sidebar";
@@ -70,7 +83,9 @@ export default function LinksPage() {
   return (
     <main className="p-4 md:p-8">
       <div className="flex justify-between items-center mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Short Link</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
+          Short Link
+        </h1>
       </div>
 
       {/* Toolbar ala Bitly */}
@@ -81,10 +96,16 @@ export default function LinksPage() {
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline" className="flex-1 md:flex-none bg-white gap-2 text-slate-600">
+          <Button
+            variant="outline"
+            className="flex-1 md:flex-none bg-white gap-2 text-slate-600"
+          >
             <Calendar className="h-4 w-4" /> Filter by date
           </Button>
-          <Button variant="outline" className="flex-1 md:flex-none bg-white gap-2 text-slate-600">
+          <Button
+            variant="outline"
+            className="flex-1 md:flex-none bg-white gap-2 text-slate-600"
+          >
             <Filter className="h-4 w-4" /> Add filters
           </Button>
         </div>
@@ -93,20 +114,35 @@ export default function LinksPage() {
       {/* Link Cards List */}
       <div className="space-y-4">
         {links.map((link: any) => (
-          <div key={link.id} className="bg-white border rounded-xl p-4 md:p-6 hover:border-blue-300 transition-all shadow-sm">
+          <div
+            key={link.id}
+            className="bg-white border rounded-xl p-4 md:p-6 hover:border-blue-300 transition-all shadow-sm"
+          >
             <div className="flex flex-col md:flex-row md:items-start gap-4">
               <div className="p-2 bg-blue-50 rounded-full flex-shrink-0">
                 <LinkIcon className="h-5 w-5 text-blue-600" />
               </div>
 
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base md:text-lg text-slate-800 truncate mb-1">{link.longUrl.replace("https://", "").split("/")[0]} — untitled</h3>
+                <h3 className="font-bold text-base md:text-lg text-slate-800 truncate mb-1">
+                  {link.longUrl.replace("https://", "").split("/")[0]} —
+                  untitled
+                </h3>
 
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <a href={link.shortUrl} target="_blank" className="text-[#0c3ebe] font-semibold hover:underline break-all">
+                  <a
+                    href={link.shortUrl}
+                    target="_blank"
+                    className="text-[#0c3ebe] font-semibold hover:underline break-all"
+                  >
                     {link.shortUrl.replace("http://", "")}
                   </a>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(link.shortUrl)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => handleCopy(link.shortUrl)}
+                  >
                     <Copy className="h-3 w-3" />
                   </Button>
                 </div>
@@ -133,11 +169,20 @@ export default function LinksPage() {
               </div>
 
               <div className="flex gap-2 md:ml-auto">
-                <Button variant="outline" size="icon" className="h-9 w-9 border-slate-200">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 border-slate-200"
+                >
                   <Pencil className="h-4 w-4" />
                 </Button>
 
-                <Button onClick={() => handleDelete(link.id)} variant="outline" size="icon" className="h-9 w-9 border-slate-200">
+                <Button
+                  onClick={() => handleDelete(link.id)}
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 border-slate-200"
+                >
                   <Trash className="h-4 w-4" />
                 </Button>
               </div>

@@ -1,10 +1,29 @@
 // components/LinksTable.tsx
 "use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Copy, Eye, MoreVertical, QrCode, Loader2, RefreshCw } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  Copy,
+  Eye,
+  MoreVertical,
+  QrCode,
+  Loader2,
+  RefreshCw,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState, useEffect, useCallback } from "react"; // Tambahkan hook ini
 import axios from "axios";
 
@@ -31,6 +50,9 @@ export default function LinksTable() {
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
+  const [newShortCode, setNewShortCode] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // Fungsi untuk mengambil data dari backend
   const fetchLinks = useCallback(async () => {
@@ -94,6 +116,38 @@ export default function LinksTable() {
     }
   };
 
+  const handleEditShortCode = async () => {
+    if (!editingLink) return;
+
+    if (!newShortCode.trim()) {
+      alert("ShortCode tidak boleh kosong");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("User belum login");
+
+      await axios.patch(
+        `${API_URL}/links/${editingLink.id}/shortcode`,
+        { shortCode: newShortCode },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      alert("ShortCode berhasil diperbarui");
+      setEditingLink(null);
+      setNewShortCode("");
+      await fetchLinks();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Gagal update ShortCode");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // ----------------------------------------------------
   // LOGIC RENDERING
   // ----------------------------------------------------
@@ -111,7 +165,9 @@ export default function LinksTable() {
     return (
       <div className="p-4 border border-red-400 bg-red-50 rounded-md">
         <p className="text-red-700 font-medium">Error: {error}</p>
-        <p className="text-sm text-red-600">Pastikan server Express Anda berjalan di {API_URL}</p>
+        <p className="text-sm text-red-600">
+          Pastikan server Express Anda berjalan di {API_URL}
+        </p>
       </div>
     );
   }
@@ -119,8 +175,12 @@ export default function LinksTable() {
   if (links.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 border rounded-md">
-        <p className="text-lg font-medium mb-4">Belum ada tautan yang dibuat.</p>
-        <p className="text-gray-500">Gunakan tombol "Buat Baru" untuk memulai.</p>
+        <p className="text-lg font-medium mb-4">
+          Belum ada tautan yang dibuat.
+        </p>
+        <p className="text-gray-500">
+          Gunakan tombol "Buat Baru" untuk memulai.
+        </p>
       </div>
     );
   }
@@ -152,8 +212,15 @@ export default function LinksTable() {
                 <TableRow key={link.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-blue-600">{link.shortUrl}</span>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(link.shortUrl)}>
+                      <span className="font-mono text-blue-600">
+                        {link.shortUrl}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleCopy(link.shortUrl)}
+                      >
                         <Copy className="h-3 w-3" />
                       </Button>
                     </div>
@@ -172,9 +239,17 @@ export default function LinksTable() {
                   </TableCell>
                   <TableCell>
                     {link.qrImageUrl ? (
-                      <QrCodeModal qrImageUrl={link.qrImageUrl} shortCode={link.shortCode} />
+                      <QrCodeModal
+                        qrImageUrl={link.qrImageUrl}
+                        shortCode={link.shortCode}
+                      />
                     ) : (
-                      <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        disabled
+                      >
                         <QrCode className="h-4 w-4" />
                       </Button>
                     )}
@@ -189,7 +264,14 @@ export default function LinksTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           {/* --- EDIT (Langkah 3) --- */}
-                          <DropdownMenuItem onClick={() => alert(`Akan mengedit Link ID: ${link.id}`)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setEditingLink(link);
+                              setNewShortCode(link.shortCode);
+                            }}
+                          >
+                            Edit
+                          </DropdownMenuItem>
 
                           {/* --- DELETE (Telah Aktif) --- */}
                           <DropdownMenuItem
@@ -208,6 +290,41 @@ export default function LinksTable() {
           </Table>
         </CardContent>
       </Card>
+      {editingLink && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Edit ShortCode</h3>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">
+                ShortCode Baru
+              </label>
+              <input
+                className="w-full border rounded px-3 py-2"
+                value={newShortCode}
+                onChange={(e) => setNewShortCode(e.target.value)}
+                disabled={saving}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Huruf, angka, -, _ (4–20 karakter)
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setEditingLink(null)}
+                disabled={saving}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleEditShortCode} disabled={saving}>
+                {saving ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
